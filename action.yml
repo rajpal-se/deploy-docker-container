@@ -1,0 +1,79 @@
+name: Deploy Docker Container
+
+description: >
+  Deploy a Docker container using ECR images with configurable environment variables and options.
+
+inputs:
+  host:
+    description: "Host for SSH connection."
+    required: false
+    default: "github-actions"
+  aws-account-id:
+    description: "AWS account ID."
+    required: true
+  aws-ecr-region:
+    description: "AWS ECR region."
+    required: true
+  aws-ecr-repository:
+    description: "The AWS ECR repository name."
+    required: true
+  ecr-image-tag:
+    description: "ECR image (tag) to be deployed"
+    required: false
+    default: "latest"
+  app-container-name:
+    description: "Name of the Docker container."
+    required: true
+  app-port-mapping:
+    description: "Port mapping for the Docker container."
+    required: true
+  app-network:
+    description: "Network for the Docker container."
+    required: false
+    default: "vps"
+  app-env-file:
+    description: "Environment file data."
+    required: false
+  app-docker-run-options:
+    description: "Additional options for Docker run command."
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Deploy Docker Container
+      shell: bash
+      env:
+        ECR_HOST_URL: ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-ecr-region }}.amazonaws.com
+        ECR_REPOSITORY_URL: ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-ecr-region }}.amazonaws.com/${{ inputs.aws-ecr-repository }}:${{ inputs.ecr-image-tag }}
+      run: |
+        ssh -F "./.tmp/.ssh/config" ${{ inputs.host }} << 'EOF'
+          aws ecr get-login-password --region ${{ inputs.aws-ecr-region }} \
+            | docker login --username AWS --password-stdin ${{ env.ECR_HOST_URL }}
+
+         docker pull ${{ env.ECR_REPOSITORY_URL }}
+
+          docker stop ${{ inputs.app-container-name }} 2> /dev/null
+          docker rm ${{ inputs.app-container-name }} 2> /dev/null
+
+          ENV_FILE='/tmp/.env.docker'
+
+          # Handle app-env-file
+          DOCKER_ENV_OPTION=""
+          if [[ -n "${{ inputs.app-env-file }}" ]]; then
+            echo ${{ inputs.app-env-file }} > $ENV_FILE
+            DOCKER_ENV_OPTION="--env-file $ENV_FILE"
+          fi
+
+          # Handle app-docker-run-options
+          DOCKER_RUN_OPTIONS="${{ inputs.app-docker-run-options }}"
+
+          docker run -d \
+            --name ${{ inputs.app-container-name }} \
+            -p ${{ inputs.app-port-mapping }} \
+            --network ${{ inputs.app-network }} \
+            $DOCKER_ENV_OPTION $DOCKER_RUN_OPTIONS \
+            ${{ env.ECR_REPOSITORY_URL }}
+          
+          echo "" > $ENV_FILE
+        EOF
