@@ -19,7 +19,7 @@ This GitHub Action simplifies the deployment of Docker containers using AWS Elas
 
 | Name                 | Description                                     |
 | -------------------- | ----------------------------------------------- |
-| `aws-account-id`     | AWS account ID.                                 |
+| `aws-account-number` | AWS account Number.                             |
 | `aws-ecr-region`     | AWS ECR region.                                 |
 | `aws-ecr-repository` | The AWS ECR repository name.                    |
 | `app-container-name` | Name of the Docker container.                   |
@@ -66,7 +66,7 @@ jobs:
       - name: Deploy Docker Container
         uses: rajpal-se/deploy-docker-container@latest
         with:
-          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-account-number: ${{ secrets.AWS_ACCOUNT_NUMBER }}
           aws-ecr-region: ${{ secrets.AWS_ECR_REGION }}
           aws-ecr-repository: ${{ secrets.AWS_ECR_REPOSITORY }}
           ecr-image-tag: latest
@@ -98,7 +98,7 @@ jobs:
 
 Ensure the following secrets are set in your repository:
 
-- `AWS_ACCOUNT_ID`: AWS Account ID.
+- `AWS_ACCOUNT_NUMBER`: AWS Account Number.
 - `AWS_ECR_REGION`: AWS region for ECR.
 - `AWS_ECR_REPOSITORY`: Name of the ECR repository.
 

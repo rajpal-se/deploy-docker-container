@@ -8,8 +8,8 @@ inputs:
     description: "Host for SSH connection."
     required: false
     default: "github-actions"
-  aws-account-id:
-    description: "AWS account ID."
+  aws-account-number:
+    description: "AWS account number."
     required: true
   aws-ecr-region:
     description: "AWS ECR region."
@@ -47,14 +47,14 @@ runs:
     - name: Deploy Docker Container
       shell: bash
       env:
-        ECR_HOST_URL: ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-ecr-region }}.amazonaws.com
-        ECR_REPOSITORY_URL: ${{ inputs.aws-account-id }}.dkr.ecr.${{ inputs.aws-ecr-region }}.amazonaws.com/${{ inputs.aws-ecr-repository }}:${{ inputs.ecr-image-tag }}
+        ECR_HOST_URL: ${{ inputs.aws-account-number }}.dkr.ecr.${{ inputs.aws-ecr-region }}.amazonaws.com
+        ECR_REPOSITORY_URL: ${{ inputs.aws-account-number }}.dkr.ecr.${{ inputs.aws-ecr-region }}.amazonaws.com/${{ inputs.aws-ecr-repository }}:${{ inputs.ecr-image-tag }}
       run: |
         ssh -F "./.tmp/.ssh/config" ${{ inputs.host }} << 'EOF'
           aws ecr get-login-password --region ${{ inputs.aws-ecr-region }} \
             | docker login --username AWS --password-stdin ${{ env.ECR_HOST_URL }}
 
-         docker pull ${{ env.ECR_REPOSITORY_URL }}
+          docker pull ${{ env.ECR_REPOSITORY_URL }}
 
           docker stop ${{ inputs.app-container-name }} 2> /dev/null
           docker rm ${{ inputs.app-container-name }} 2> /dev/null
