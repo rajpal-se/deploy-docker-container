@@ -26,7 +26,7 @@ inputs:
     required: true
   app-port-mapping:
     description: "Port mapping for the Docker container."
-    required: true
+    required: false
   app-network:
     description: "Network for the Docker container."
     required: false
@@ -68,6 +68,20 @@ runs:
             DOCKER_ENV_OPTION="--env-file $ENV_FILE"
           fi
 
+          # Handle port mapping
+          DOCKER_PORT_OPTION=""
+          if [[ -n "${{ inputs.app-port-mapping }}" ]]; then
+            echo ${{ inputs.app-port-mapping }} > $ENV_FILE
+            DOCKER_PORT_OPTION="-p ${{ inputs.app-port-mapping }}"
+          fi
+
+          # Handle network
+          DOCKER_NETWORK_OPTION=""
+          if [[ -n "${{ inputs.app-network }}" ]]; then
+            echo ${{ inputs.app-network }} > $ENV_FILE
+            DOCKER_NETWORK_OPTION="--network ${{ inputs.app-network }}"
+          fi
+
           # Handle app-docker-run-options
           DOCKER_RUN_OPTIONS="${{ inputs.app-docker-run-options }}"
 
@@ -79,8 +93,8 @@ runs:
 
           docker run -d \
             --name ${{ inputs.app-container-name }} \
-            -p ${{ inputs.app-port-mapping }} \
-            --network ${{ inputs.app-network }} \
+            $DOCKER_PORT_OPTION \
+            $DOCKER_NETWORK_OPTION \
             $DOCKER_ENV_OPTION \
             $DOCKER_IP_OPTION \
             $DOCKER_RUN_OPTIONS \
