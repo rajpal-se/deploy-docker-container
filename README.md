@@ -27,13 +27,14 @@ This GitHub Action simplifies the deployment of Docker containers using AWS Elas
 
 ### Optional Inputs
 
-| Name                     | Description                       | Default          |
-| ------------------------ | --------------------------------- | ---------------- |
-| `host`                   | Host for SSH connection.          | `github-actions` |
-| `ecr-image-tag`          | ECR image tag to be deployed.     | `latest`         |
-| `app-network`            | Network for the Docker container. | `vps`            |
-| `app-env-file`           | Environment file data.            | N/A              |
-| `app-docker-run-options` | Additional Docker run options.    | N/A              |
+| Name                     | Description                          | Default          |
+| ------------------------ | ------------------------------------ | ---------------- |
+| `host`                   | Host for SSH connection.             | `github-actions` |
+| `ecr-image-tag`          | ECR image tag to be deployed.        | `latest`         |
+| `app-network`            | Network for the Docker container.    | `vps`            |
+| `app-container-ip`       | IP address for the Docker container. | N/A              |
+| `app-env-file`           | Environment file data.               | N/A              |
+| `app-docker-run-options` | Additional Docker run options.       | N/A              |
 
 ---
 
@@ -63,7 +64,7 @@ jobs:
           hostname: ${{ secrets.HOSTNAME }}
 
       - name: Deploy Docker Container
-        uses: ./
+        uses: rajpal-se/deploy-docker-container@latest
         with:
           aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
           aws-ecr-region: ${{ secrets.AWS_ECR_REGION }}

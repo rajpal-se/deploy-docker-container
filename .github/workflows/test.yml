@@ -23,4 +23,5 @@ jobs:
           app-container-name: ${{ secrets.APP_CONTAINER_NAME }}
           app-port-mapping: ${{ secrets.APP_PORT_MAPPING }}
           app-env-file: ${{ secrets.APP_ENV_FILE }}
+          app-conatiner-ip: ${{ secrets.APP_CONTAINER_IP }}
           app-docker-run-options: "--label MyLabel"

@@ -31,6 +31,9 @@ inputs:
     description: "Network for the Docker container."
     required: false
     default: "vps"
+  app-container-ip:
+    description: "IP address for the Docker container."
+    required: false
   app-env-file:
     description: "Environment file data."
     required: false
@@ -68,11 +71,19 @@ runs:
           # Handle app-docker-run-options
           DOCKER_RUN_OPTIONS="${{ inputs.app-docker-run-options }}"
 
+          # Handle app-container-ip
+          DOCKER_IP_OPTION=""
+          if [[ -n "${{ inputs.app-container-ip }}" ]]; then
+            DOCKER_IP_OPTION="--ip ${{ inputs.app-container-ip }}"
+          fi
+
           docker run -d \
             --name ${{ inputs.app-container-name }} \
             -p ${{ inputs.app-port-mapping }} \
             --network ${{ inputs.app-network }} \
-            $DOCKER_ENV_OPTION $DOCKER_RUN_OPTIONS \
+            $DOCKER_ENV_OPTION \
+            $DOCKER_IP_OPTION \
+            $DOCKER_RUN_OPTIONS \
             ${{ env.ECR_REPOSITORY_URL }}
           
           echo "" > $ENV_FILE
