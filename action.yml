@@ -64,7 +64,12 @@ runs:
           # Handle app-env-file
           DOCKER_ENV_OPTION=""
           if [[ -n "${{ inputs.app-env-file }}" ]]; then
-            echo ${{ inputs.app-env-file }} > $ENV_FILE
+            input=${{ inputs.app-env-file }}
+            input=$(echo "$input" | sed -E 's/^["'\'']//; s/["'\'']$//')
+
+            printf "${{ inputs.app-env-file }}" > $ENV_FILE
+            # cat $ENV_FILE
+
             DOCKER_ENV_OPTION="--env-file $ENV_FILE"
           fi
 
