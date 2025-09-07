@@ -63,11 +63,21 @@ runs:
 
           # Handle app-env-file
           DOCKER_ENV_OPTION=""
-          if [[ -n "${{ inputs.app-env-file }}" ]]; then
-            input=${{ inputs.app-env-file }}
-            input=$(echo "$input" | sed -E 's/^["'\'']//; s/["'\'']$//')
+          
+          input="${{ inputs.app-env-file }}"
+          # Remove leading quote if present
+          if [[ "${input:0:1}" == "\"" ]]; then
+            input="${input:1}"
+          fi
+          # Remove trailing quote if present
+          if [[ "${input: -1}" == "\"" ]]; then
+            input="${input::-1}"
+          fi
 
-            printf "${{ inputs.app-env-file }}" > $ENV_FILE
+          if [[ -n "$input" ]]; then
+            input="$input"
+            printf "$input" > $ENV_FILE
+            
             # cat $ENV_FILE
 
             DOCKER_ENV_OPTION="--env-file $ENV_FILE"
@@ -76,14 +86,12 @@ runs:
           # Handle port mapping
           DOCKER_PORT_OPTION=""
           if [[ -n "${{ inputs.app-port-mapping }}" ]]; then
-            echo ${{ inputs.app-port-mapping }} > $ENV_FILE
             DOCKER_PORT_OPTION="-p ${{ inputs.app-port-mapping }}"
           fi
 
           # Handle network
           DOCKER_NETWORK_OPTION=""
           if [[ -n "${{ inputs.app-network }}" ]]; then
-            echo ${{ inputs.app-network }} > $ENV_FILE
             DOCKER_NETWORK_OPTION="--network ${{ inputs.app-network }}"
           fi
 
